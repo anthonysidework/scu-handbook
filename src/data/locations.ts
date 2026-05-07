@@ -9,7 +9,6 @@ export interface Location {
   amenities?: string[];
 }
 
-// SCU campus center (Mission Gardens area)
 export const SCU_CENTER = {
   lat: 37.3496,
   lng: -121.9406,
@@ -48,7 +47,7 @@ export const locations: Location[] = [
     amenities: ["Coffee", "Pastries"],
   },
 
-  // Academic Buildings
+  // Academic
   {
     id: "lucas-hall",
     name: "Lucas Hall",
@@ -62,7 +61,7 @@ export const locations: Location[] = [
     id: "engineering",
     name: "Bannan Engineering",
     category: "academic",
-    description: "School of Engineering",
+    description: "School of Engineering — labs and classrooms",
     lat: 37.3497,
     lng: -121.9364,
     amenities: ["Labs", "Classrooms", "Engineering School"],
@@ -71,7 +70,7 @@ export const locations: Location[] = [
     id: "kenna-hall",
     name: "Kenna Hall",
     category: "academic",
-    description: "Arts & Sciences classrooms",
+    description: "Arts & Sciences classrooms and faculty offices",
     lat: 37.3501,
     lng: -121.9399,
     amenities: ["Classrooms", "Faculty Offices"],
@@ -85,13 +84,58 @@ export const locations: Location[] = [
     lng: -121.9413,
     amenities: ["Classrooms", "Admin Offices"],
   },
+  {
+    id: "sobrato-hall",
+    name: "Sobrato Hall",
+    category: "academic",
+    description: "Theatre, film, and communications programs",
+    lat: 37.3489,
+    lng: -121.9392,
+    amenities: ["Classrooms", "Theatre", "Film Studio"],
+  },
+  {
+    id: "st-josephs",
+    name: "St. Joseph's Hall",
+    category: "academic",
+    description: "Theology, philosophy, and humanities departments",
+    lat: 37.3504,
+    lng: -121.9392,
+    amenities: ["Classrooms", "Faculty Offices"],
+  },
+  {
+    id: "bannan-hall",
+    name: "Bannan Hall",
+    category: "academic",
+    description: "Anthropology, sociology, and social sciences",
+    lat: 37.3498,
+    lng: -121.9403,
+    amenities: ["Classrooms", "Faculty Offices"],
+  },
+  {
+    id: "alumni-science",
+    name: "Alumni Science",
+    category: "academic",
+    description: "Biology, chemistry, and natural science labs",
+    lat: 37.3491,
+    lng: -121.9362,
+    amenities: ["Labs", "Classrooms"],
+  },
+  {
+    id: "innovation-center",
+    name: "SCU Innovation Center",
+    category: "academic",
+    description: "Maker Space, prototyping lab, and startup resources",
+    lat: 37.3510,
+    lng: -121.9373,
+    amenities: ["Maker Space", "3D Printing", "Laser Cutting"],
+  },
 
   // Library
   {
     id: "orradre-library",
     name: "Orradre Library",
     category: "library",
-    description: "Main campus library with study spaces",
+    description: "Main campus library with study spaces and research databases",
     lat: 37.3491,
     lng: -121.9411,
     hours: "Open 24/7 during finals",
@@ -101,9 +145,9 @@ export const locations: Location[] = [
   // Athletic
   {
     id: "leavey-center",
-    name: "Leavey Center",
+    name: "Leavey Recreation Center",
     category: "athletic",
-    description: "Fitness center and recreational facilities",
+    description: "Fitness center, pool, and recreational facilities",
     lat: 37.3472,
     lng: -121.9404,
     hours: "6:00 AM - 11:00 PM",
@@ -113,10 +157,28 @@ export const locations: Location[] = [
     id: "stevens-stadium",
     name: "Stevens Stadium",
     category: "athletic",
-    description: "Soccer stadium",
+    description: "Soccer stadium and track",
     lat: 37.3457,
     lng: -121.9421,
     amenities: ["Soccer", "Track"],
+  },
+  {
+    id: "bellomy-field",
+    name: "Bellomy Field",
+    category: "athletic",
+    description: "Multi-use turf field for club sports and recreation",
+    lat: 37.3453,
+    lng: -121.9400,
+    amenities: ["Turf Field", "Club Sports"],
+  },
+  {
+    id: "malley-gym",
+    name: "Malley Fitness Center",
+    category: "athletic",
+    description: "Auxiliary fitness and recreation space",
+    lat: 37.3476,
+    lng: -121.9415,
+    amenities: ["Fitness Center", "Courts"],
   },
 
   // Services
@@ -124,21 +186,49 @@ export const locations: Location[] = [
     id: "cowell-health",
     name: "Cowell Health Center",
     category: "services",
-    description: "Student health services",
+    description: "Student health services and counseling",
     lat: 37.3479,
     lng: -121.9371,
     hours: "8:00 AM - 5:00 PM",
-    amenities: ["Medical Services", "Counseling"],
+    amenities: ["Medical Services", "Counseling", "Pharmacy"],
   },
   {
     id: "benson-bookstore",
     name: "SCU Bookstore",
     category: "services",
-    description: "Textbooks, apparel, and supplies",
+    description: "Textbooks, apparel, and school supplies",
     lat: 37.3486,
     lng: -121.9397,
     hours: "9:00 AM - 6:00 PM",
     amenities: ["Textbooks", "Apparel", "Supplies"],
+  },
+  {
+    id: "walsh-admin",
+    name: "Walsh Administration Building",
+    category: "services",
+    description: "Registrar, Financial Aid, and administrative offices",
+    lat: 37.3510,
+    lng: -121.9406,
+    hours: "8:00 AM - 5:00 PM",
+    amenities: ["Registrar", "Financial Aid", "Admin Offices"],
+  },
+  {
+    id: "locatelli",
+    name: "Locatelli Activity Center",
+    category: "services",
+    description: "Student activities, clubs, and event spaces",
+    lat: 37.3490,
+    lng: -121.9393,
+    amenities: ["Event Space", "Student Activities", "Clubs"],
+  },
+  {
+    id: "parking-structure",
+    name: "Main Parking Structure",
+    category: "services",
+    description: "Multi-level campus parking garage",
+    lat: 37.3506,
+    lng: -121.9382,
+    amenities: ["Parking", "EV Charging"],
   },
 
   // Housing
@@ -160,6 +250,42 @@ export const locations: Location[] = [
     lng: -121.9383,
     amenities: ["Residence Hall", "Laundry", "Study Lounges"],
   },
+  {
+    id: "casa-italiana",
+    name: "Casa Italiana",
+    category: "housing",
+    description: "Theme house focused on Italian language and culture",
+    lat: 37.3468,
+    lng: -121.9415,
+    amenities: ["Residence Hall", "Theme House"],
+  },
+  {
+    id: "sanfilippo",
+    name: "Sanfilippo Hall",
+    category: "housing",
+    description: "Freshman residence hall on south campus",
+    lat: 37.3464,
+    lng: -121.9396,
+    amenities: ["Residence Hall", "Laundry"],
+  },
+  {
+    id: "mclaughlin",
+    name: "McLaughlin Hall",
+    category: "housing",
+    description: "Upperclassman residence hall",
+    lat: 37.3461,
+    lng: -121.9388,
+    amenities: ["Residence Hall", "Laundry", "Study Lounges"],
+  },
+  {
+    id: "nobili-hall",
+    name: "Nobili Hall",
+    category: "housing",
+    description: "Residence hall near the mission church",
+    lat: 37.3494,
+    lng: -121.9422,
+    amenities: ["Residence Hall", "Laundry"],
+  },
 
   // Other
   {
@@ -171,16 +297,35 @@ export const locations: Location[] = [
     lng: -121.9413,
     amenities: ["Chapel", "Historic Site"],
   },
+  {
+    id: "de-saisset",
+    name: "de Saisset Museum",
+    category: "other",
+    description: "Free art and history museum on campus",
+    lat: 37.3503,
+    lng: -121.9418,
+    hours: "Tue–Sun 11:00 AM - 4:00 PM",
+    amenities: ["Art Museum", "Free Admission"],
+  },
+  {
+    id: "mission-gardens",
+    name: "Mission Gardens",
+    category: "other",
+    description: "Beautiful gardens surrounding the Mission church",
+    lat: 37.3497,
+    lng: -121.9408,
+    amenities: ["Gardens", "Historic Site", "Study Spot"],
+  },
 ];
 
 export const categoryColors: Record<Location["category"], string> = {
-  dining: "#f97316", // orange
-  academic: "#3b82f6", // blue
-  library: "#8b5cf6", // purple
-  athletic: "#22c55e", // green
-  housing: "#ec4899", // pink
-  services: "#06b6d4", // cyan
-  other: "#6b7280", // gray
+  dining: "#f97316",
+  academic: "#3b82f6",
+  library: "#8b5cf6",
+  athletic: "#22c55e",
+  housing: "#ec4899",
+  services: "#06b6d4",
+  other: "#6b7280",
 };
 
 export const categoryLabels: Record<Location["category"], string> = {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Calculator, ChevronLeft, RotateCcw } from "lucide-react";
 import Link from "next/link";
 
@@ -55,7 +55,7 @@ export default function CalculatorPage() {
   );
 }
 
-// ─── Grade helpers ────────────────────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const gradePoints: Record<string, number> = {
   "A+": 4.0, "A": 4.0, "A-": 3.7,
@@ -65,7 +65,7 @@ const gradePoints: Record<string, number> = {
   "F": 0.0,
 };
 
-function scorToLetter(score: number): string {
+function scoreToLetter(score: number): string {
   if (score >= 97) return "A+";
   if (score >= 93) return "A";
   if (score >= 90) return "A-";
@@ -89,22 +89,30 @@ function resultMessage(score: number): string {
   return "You'd need over 100%. Consider adjusting your target grade.";
 }
 
+function useLocalStorage<T>(key: string, init: T): [T, (v: T) => void] {
+  const [val, setVal] = useState<T>(() => {
+    if (typeof window === "undefined") return init;
+    try {
+      const stored = localStorage.getItem(key);
+      return stored ? (JSON.parse(stored) as T) : init;
+    } catch {
+      return init;
+    }
+  });
+  const set = (v: T) => {
+    setVal(v);
+    try { localStorage.setItem(key, JSON.stringify(v)); } catch { /* ignore */ }
+  };
+  return [val, set];
+}
+
 // ─── Input field ──────────────────────────────────────────────────────────────
 
 function Field({
-  label,
-  value,
-  onChange,
-  placeholder,
-  error,
-  hint,
+  label, value, onChange, placeholder, error, hint,
 }: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  placeholder: string;
-  error?: string;
-  hint?: string;
+  label: string; value: string; onChange: (v: string) => void;
+  placeholder: string; error?: string; hint?: string;
 }) {
   return (
     <div>
@@ -116,9 +124,7 @@ function Field({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         className={`w-full px-4 py-3 rounded-lg border bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#9E1B32] focus:border-transparent outline-none transition-colors ${
-          error
-            ? "border-red-400 dark:border-red-500"
-            : "border-gray-200 dark:border-gray-700"
+          error ? "border-red-400 dark:border-red-500" : "border-gray-200 dark:border-gray-700"
         }`}
       />
       {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
@@ -165,91 +171,53 @@ function FinalExamCalculator() {
     return Math.round(((desired - current * (1 - weight)) / weight) * 100) / 100;
   }, [currentGrade, desiredGrade, finalWeight, errors]);
 
-  const reset = () => {
-    setCurrentGrade("");
-    setDesiredGrade("");
-    setFinalWeight("");
-  };
-
-  const hasInput = currentGrade || desiredGrade || finalWeight;
+  const reset = () => { setCurrentGrade(""); setDesiredGrade(""); setFinalWeight(""); };
 
   return (
     <div className="space-y-4 pb-8">
       <div className="bg-white dark:bg-gray-900 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-800">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-gray-900 dark:text-white">
-            What do I need on my final?
-          </h2>
-          {hasInput && (
-            <button onClick={reset} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+          <h2 className="font-semibold text-gray-900 dark:text-white">What do I need on my final?</h2>
+          {(currentGrade || desiredGrade || finalWeight) && (
+            <button onClick={reset} className="text-gray-400 hover:text-gray-600">
               <RotateCcw className="w-4 h-4" />
             </button>
           )}
         </div>
-
         <div className="space-y-4">
-          <Field
-            label="Current grade (%)"
-            value={currentGrade}
-            onChange={setCurrentGrade}
-            placeholder="e.g. 85"
-            error={errors.currentGrade}
-          />
-          <Field
-            label="Desired final grade (%)"
-            value={desiredGrade}
-            onChange={setDesiredGrade}
-            placeholder="e.g. 90"
-            error={errors.desiredGrade}
-          />
-          <Field
-            label="Final exam weight (%)"
-            value={finalWeight}
-            onChange={setFinalWeight}
-            placeholder="e.g. 25"
-            error={errors.finalWeight}
-            hint="Check your syllabus for this number"
-          />
+          <Field label="Current grade (%)" value={currentGrade} onChange={setCurrentGrade} placeholder="e.g. 85" error={errors.currentGrade} />
+          <Field label="Desired final grade (%)" value={desiredGrade} onChange={setDesiredGrade} placeholder="e.g. 90" error={errors.desiredGrade} />
+          <Field label="Final exam weight (%)" value={finalWeight} onChange={setFinalWeight} placeholder="e.g. 25" error={errors.finalWeight} hint="Check your syllabus" />
         </div>
       </div>
 
       {result !== null && (
-        <div
-          className={`rounded-xl p-4 shadow-sm border ${
-            result <= 100
-              ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
-              : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
-          }`}
-        >
+        <div className={`rounded-xl p-4 shadow-sm border ${
+          result <= 100
+            ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+            : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
+        }`}>
           <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
             {result <= 100 ? "You need at least" : "Not possible"}
           </p>
           <div className="flex items-end gap-3">
-            <p
-              className={`text-4xl font-bold ${
-                result <= 100
-                  ? "text-green-600 dark:text-green-400"
-                  : "text-red-600 dark:text-red-400"
-              }`}
-            >
+            <p className={`text-4xl font-bold ${result <= 100 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
               {result <= 100 ? `${result}%` : ">100%"}
             </p>
             {result <= 100 && (
               <p className="text-lg font-semibold text-gray-500 dark:text-gray-400 mb-0.5">
-                ({scorToLetter(result)})
+                ({scoreToLetter(result)})
               </p>
             )}
           </div>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-            {resultMessage(result)}
-          </p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">{resultMessage(result)}</p>
         </div>
       )}
 
       <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800">
         <h3 className="font-medium text-blue-900 dark:text-blue-300 mb-1">How it works</h3>
         <p className="text-sm text-blue-700 dark:text-blue-400">
-          Formula: (desired − current × (1 − weight)) ÷ weight. Enter all three fields and the result updates live.
+          Formula: (desired − current × (1 − weight)) ÷ weight. Result updates as you type.
         </p>
       </div>
     </div>
@@ -265,54 +233,52 @@ interface Course {
   credits: string;
 }
 
-function GPACalculator() {
-  const [courses, setCourses] = useState<Course[]>([
-    { id: "1", name: "", grade: "A", credits: "3" },
-  ]);
-  const [cumGPA, setCumGPA] = useState("");
-  const [cumCredits, setCumCredits] = useState("");
+const DEFAULT_COURSES: Course[] = [{ id: "1", name: "", grade: "A", credits: "3" }];
 
-  const addCourse = () => {
+function GPACalculator() {
+  const [courses, setCourses] = useLocalStorage<Course[]>("gpa-courses", DEFAULT_COURSES);
+  const [cumGPA, setCumGPA] = useLocalStorage("gpa-cumulative", "");
+  const [cumCredits, setCumCredits] = useLocalStorage("gpa-cum-credits", "");
+
+  // Ensure IDs are stable after hydration
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
+
+  const addCourse = () =>
     setCourses([...courses, { id: Date.now().toString(), name: "", grade: "A", credits: "3" }]);
-  };
 
   const removeCourse = (id: string) => {
     if (courses.length > 1) setCourses(courses.filter((c) => c.id !== id));
   };
 
-  const updateCourse = (id: string, field: keyof Course, value: string) => {
+  const updateCourse = (id: string, field: keyof Course, value: string) =>
     setCourses(courses.map((c) => (c.id === id ? { ...c, [field]: value } : c)));
-  };
 
   const reset = () => {
-    setCourses([{ id: "1", name: "", grade: "A", credits: "3" }]);
+    setCourses(DEFAULT_COURSES);
     setCumGPA("");
     setCumCredits("");
   };
 
   const { termGPA, newCumGPA } = useMemo(() => {
-    let totalPoints = 0;
-    let totalCredits = 0;
-    for (const course of courses) {
-      const credits = parseFloat(course.credits);
-      const points = gradePoints[course.grade];
-      if (!isNaN(credits) && credits > 0 && points !== undefined) {
-        totalPoints += credits * points;
-        totalCredits += credits;
+    let totalPoints = 0, totalCredits = 0;
+    for (const c of courses) {
+      const cr = parseFloat(c.credits);
+      const pts = gradePoints[c.grade];
+      if (!isNaN(cr) && cr > 0 && pts !== undefined) {
+        totalPoints += cr * pts;
+        totalCredits += cr;
       }
     }
     const term = totalCredits > 0 ? totalPoints / totalCredits : null;
 
     const prevGPA = parseFloat(cumGPA);
-    const prevCredits = parseFloat(cumCredits);
-    let cumulative: number | null = null;
-    if (
-      term !== null &&
-      !isNaN(prevGPA) && prevGPA >= 0 && prevGPA <= 4 &&
-      !isNaN(prevCredits) && prevCredits > 0
-    ) {
-      cumulative = (prevGPA * prevCredits + totalPoints) / (prevCredits + totalCredits);
-    }
+    const prevCr = parseFloat(cumCredits);
+    const cumulative =
+      term !== null && !isNaN(prevGPA) && prevGPA >= 0 && prevGPA <= 4 &&
+      !isNaN(prevCr) && prevCr > 0
+        ? (prevGPA * prevCr + totalPoints) / (prevCr + totalCredits)
+        : null;
 
     return {
       termGPA: term !== null ? term.toFixed(2) : "—",
@@ -324,7 +290,7 @@ function GPACalculator() {
     const e: Record<string, string> = {};
     if (cumGPA !== "") {
       const v = parseFloat(cumGPA);
-      if (isNaN(v) || v < 0 || v > 4) e.cumGPA = "Enter a GPA between 0.0 and 4.0";
+      if (isNaN(v) || v < 0 || v > 4) e.cumGPA = "Enter 0.0–4.0";
     }
     if (cumCredits !== "") {
       const v = parseFloat(cumCredits);
@@ -333,21 +299,22 @@ function GPACalculator() {
     return e;
   }, [cumGPA, cumCredits]);
 
+  if (!hydrated) return null;
+
   return (
     <div className="space-y-4 pb-8">
-      {/* Term courses */}
       <div className="bg-white dark:bg-gray-900 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-800">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-semibold text-gray-900 dark:text-white">This term&apos;s courses</h2>
-          <button onClick={reset} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+          <button onClick={reset} className="text-gray-400 hover:text-gray-600">
             <RotateCcw className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="grid grid-cols-3 gap-1 mb-2">
-          <p className="text-xs text-gray-400 px-1">Course</p>
-          <p className="text-xs text-gray-400 px-1">Grade</p>
-          <p className="text-xs text-gray-400 px-1">Credits</p>
+        <div className="grid grid-cols-3 gap-1 mb-2 px-1">
+          {["Course", "Grade", "Credits"].map((h) => (
+            <p key={h} className="text-xs text-gray-400">{h}</p>
+          ))}
         </div>
 
         <div className="space-y-2">
@@ -399,7 +366,6 @@ function GPACalculator() {
         </button>
       </div>
 
-      {/* Term GPA result */}
       <div className="bg-[#9E1B32] rounded-xl p-4 shadow-sm text-white">
         <p className="text-sm text-white/70 mb-1">Term GPA</p>
         <p className="text-4xl font-bold">{termGPA}</p>
@@ -408,38 +374,29 @@ function GPACalculator() {
         </p>
       </div>
 
-      {/* Cumulative GPA */}
       <div className="bg-white dark:bg-gray-900 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-800">
-        <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
-          Calculate new cumulative GPA
-        </h3>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Optional — enter your existing GPA to see the updated cumulative.</p>
+        <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Cumulative GPA</h3>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+          Optional — enter your existing GPA + credits to see the new cumulative.
+        </p>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">
-              Current GPA
-            </label>
+            <label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">Current GPA</label>
             <input
               type="number"
               inputMode="decimal"
               value={cumGPA}
               onChange={(e) => setCumGPA(e.target.value)}
               placeholder="e.g. 3.45"
-              step="0.01"
-              min="0"
-              max="4"
+              step="0.01" min="0" max="4"
               className={`w-full px-3 py-2 rounded-lg border bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-[#9E1B32] focus:border-transparent outline-none ${
                 cumErrors.cumGPA ? "border-red-400" : "border-gray-200 dark:border-gray-700"
               }`}
             />
-            {cumErrors.cumGPA && (
-              <p className="text-xs text-red-500 mt-1">{cumErrors.cumGPA}</p>
-            )}
+            {cumErrors.cumGPA && <p className="text-xs text-red-500 mt-1">{cumErrors.cumGPA}</p>}
           </div>
           <div>
-            <label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">
-              Credits earned
-            </label>
+            <label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">Credits earned</label>
             <input
               type="number"
               inputMode="decimal"
@@ -451,21 +408,17 @@ function GPACalculator() {
                 cumErrors.cumCredits ? "border-red-400" : "border-gray-200 dark:border-gray-700"
               }`}
             />
-            {cumErrors.cumCredits && (
-              <p className="text-xs text-red-500 mt-1">{cumErrors.cumCredits}</p>
-            )}
+            {cumErrors.cumCredits && <p className="text-xs text-red-500 mt-1">{cumErrors.cumCredits}</p>}
           </div>
         </div>
-
         {newCumGPA && (
-          <div className="mt-4 bg-gray-50 dark:bg-gray-800 rounded-lg p-3 flex items-center justify-between">
+          <div className="mt-3 bg-gray-50 dark:bg-gray-800 rounded-lg p-3 flex items-center justify-between">
             <p className="text-sm text-gray-600 dark:text-gray-400">New cumulative GPA</p>
             <p className="text-2xl font-bold text-gray-900 dark:text-white">{newCumGPA}</p>
           </div>
         )}
       </div>
 
-      {/* Grade scale reference */}
       <div className="bg-white dark:bg-gray-900 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-800">
         <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Grade scale</h3>
         <div className="grid grid-cols-4 gap-x-4 gap-y-1.5">

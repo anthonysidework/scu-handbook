@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { ChevronLeft, Users, Search, Link2, Mail, MapPin } from "lucide-react";
+import { ChevronLeft, ChevronRight, Users, Search, Link2, Mail, MapPin } from "lucide-react";
 import { clubs, clubCategories } from "@/data/clubs";
 
 export default function ClubsPage() {
@@ -24,10 +24,7 @@ export default function ClubsPage() {
   return (
     <div className="min-h-full bg-gray-50 dark:bg-gray-950">
       <header className="bg-[#9E1B32] text-white px-4 pt-12 pb-6">
-        <Link
-          href="/"
-          className="inline-flex items-center text-white/80 hover:text-white mb-2"
-        >
+        <Link href="/" className="inline-flex items-center text-white/80 hover:text-white mb-2">
           <ChevronLeft className="w-5 h-5" />
           <span className="text-sm">Back</span>
         </Link>
@@ -85,7 +82,6 @@ export default function ClubsPage() {
         </div>
       </div>
 
-      {/* Results count */}
       <div className="px-4 mt-3">
         <p className="text-xs text-gray-500 dark:text-gray-400">
           {filtered.length} {filtered.length === 1 ? "club" : "clubs"} found
@@ -95,9 +91,10 @@ export default function ClubsPage() {
       {/* Club List */}
       <div className="px-4 mt-2 pb-8 space-y-3">
         {filtered.map((club) => (
-          <div
+          <Link
             key={club.id}
-            className="bg-white dark:bg-gray-900 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-800"
+            href={`/clubs/${club.id}`}
+            className="block bg-white dark:bg-gray-900 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-md transition-shadow"
           >
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1 min-w-0">
@@ -109,51 +106,40 @@ export default function ClubsPage() {
                     {club.category}
                   </span>
                 </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
                   {club.description}
                 </p>
 
-                <div className="mt-2 space-y-1">
-                  {club.meetingInfo && (
-                    <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-500">
-                      <MapPin className="w-3.5 h-3.5 shrink-0" />
-                      <span>{club.meetingInfo}</span>
-                    </div>
-                  )}
-                </div>
+                {club.meetingInfo && (
+                  <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-500 mt-2">
+                    <MapPin className="w-3.5 h-3.5 shrink-0" />
+                    <span className="truncate">{club.meetingInfo}</span>
+                  </div>
+                )}
 
                 <div className="flex gap-3 mt-2">
                   {club.instagram && (
-                    <a
-                      href={`https://instagram.com/${club.instagram.replace("@", "")}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1 text-xs text-pink-600 dark:text-pink-400 hover:underline"
-                    >
+                    <span className="flex items-center gap-1 text-xs text-pink-600 dark:text-pink-400">
                       <Link2 className="w-3.5 h-3.5" />
                       {club.instagram}
-                    </a>
+                    </span>
                   )}
                   {club.email && (
-                    <a
-                      href={`mailto:${club.email}`}
-                      className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
-                    >
+                    <span className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400">
                       <Mail className="w-3.5 h-3.5" />
                       Email
-                    </a>
+                    </span>
                   )}
                 </div>
               </div>
+              <ChevronRight className="w-5 h-5 text-gray-400 shrink-0 mt-0.5" />
             </div>
-          </div>
+          </Link>
         ))}
 
         {filtered.length === 0 && (
           <div className="bg-white dark:bg-gray-900 rounded-xl p-8 shadow-sm border border-gray-100 dark:border-gray-800 text-center">
-            <p className="text-gray-500 dark:text-gray-400 text-sm">
-              No clubs match your search.
-            </p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">No clubs match your search.</p>
           </div>
         )}
       </div>

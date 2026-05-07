@@ -7,6 +7,7 @@ import {
   GraduationCap,
   BookOpen,
 } from "lucide-react";
+import AuthButton from "@/components/AuthButton";
 
 const features = [
   {
@@ -58,8 +59,13 @@ export default function Home() {
     <div className="min-h-full">
       {/* Header */}
       <header className="bg-[#9E1B32] text-white px-4 pt-12 pb-8">
-        <h1 className="text-2xl font-bold">SCU Handbook</h1>
-        <p className="text-white/80 mt-1">Your campus toolkit</p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">SCU Handbook</h1>
+            <p className="text-white/80 mt-1">Your campus toolkit</p>
+          </div>
+          <AuthButton />
+        </div>
       </header>
 
       {/* Feature Grid */}

@@ -1,14 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { useEffect, useRef, useState } from "react";
+import { MapContainer, TileLayer, Marker, Popup, useMap, CircleMarker } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Location, SCU_CENTER, categoryColors } from "@/data/locations";
 
-// Fix Leaflet default icon issue
-const createIcon = (color: string) => {
-  return L.divIcon({
+const createIcon = (color: string) =>
+  L.divIcon({
     className: "custom-marker",
     html: `<div style="
       background-color: ${color};
@@ -23,20 +22,25 @@ const createIcon = (color: string) => {
     iconAnchor: [12, 24],
     popupAnchor: [0, -24],
   });
-};
 
 interface CampusMapProps {
   locations: Location[];
   selectedCategory: string | null;
   onSelectLocation: (location: Location) => void;
+  flyToLocation?: { lat: number; lng: number } | null;
+  userLocation?: [number, number] | null;
 }
 
-function MapController({ center }: { center: [number, number] }) {
+function FlyController({ target }: { target: { lat: number; lng: number } | null }) {
   const map = useMap();
+  const prevRef = useRef<typeof target>(null);
 
   useEffect(() => {
-    map.setView(center, 17);
-  }, [center, map]);
+    if (target && target !== prevRef.current) {
+      prevRef.current = target;
+      map.flyTo([target.lat, target.lng], 18, { duration: 0.8 });
+    }
+  }, [target, map]);
 
   return null;
 }
@@ -45,12 +49,12 @@ export default function CampusMap({
   locations,
   selectedCategory,
   onSelectLocation,
+  flyToLocation,
+  userLocation,
 }: CampusMapProps) {
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  useEffect(() => setMounted(true), []);
 
   if (!mounted) {
     return (
@@ -75,19 +79,34 @@ export default function CampusMap({
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      <MapController center={[SCU_CENTER.lat, SCU_CENTER.lng]} />
+
+      <FlyController target={flyToLocation ?? null} />
+
+      {userLocation && (
+        <CircleMarker
+          center={userLocation}
+          radius={9}
+          fillColor="#3b82f6"
+          fillOpacity={1}
+          color="white"
+          weight={3}
+        >
+          <Popup>
+            <span className="font-sans text-sm font-medium">You are here</span>
+          </Popup>
+        </CircleMarker>
+      )}
+
       {filteredLocations.map((location) => (
         <Marker
           key={location.id}
           position={[location.lat, location.lng]}
           icon={createIcon(categoryColors[location.category])}
-          eventHandlers={{
-            click: () => onSelectLocation(location),
-          }}
+          eventHandlers={{ click: () => onSelectLocation(location) }}
         >
           <Popup>
             <div className="font-sans">
-              <h3 className="font-semibold text-gray-900">{location.name}</h3>
+              <p className="font-semibold text-gray-900">{location.name}</p>
               <p className="text-sm text-gray-600">{location.description}</p>
               {location.hours && (
                 <p className="text-xs text-gray-500 mt-1">{location.hours}</p>
