@@ -58,8 +58,19 @@ export default function Home() {
   return (
     <div className="min-h-full">
       {/* Header */}
-      <header className="bg-[#9E1B32] text-white px-4 pt-12 pb-8">
-        <div className="flex items-start justify-between">
+      <header className="relative text-white px-4 pt-12 pb-8 overflow-hidden">
+        {/* Background image */}
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage:
+              "url('https://www.scu.edu/media/institutional-pages/admission/images/SCU-Fountain-Mission-Students-1156x419.png')",
+          }}
+        />
+        {/* Red overlay */}
+        <div className="absolute inset-0 bg-[#9E1B32]/80" />
+        {/* Content */}
+        <div className="relative flex items-start justify-between">
           <div>
             <h1 className="text-2xl font-bold">SCU Handbook</h1>
             <p className="text-white/80 mt-1">Your campus toolkit</p>

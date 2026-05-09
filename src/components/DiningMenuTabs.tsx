@@ -1,7 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { MenuItem, dietaryTagColors } from "@/data/dining";
+import { dietaryTagColors } from "@/data/dining";
+
+export interface MenuItem {
+  id: string;
+  hallId: string;
+  name: string;
+  description?: string;
+  category: "breakfast" | "lunch" | "dinner" | "all-day";
+  station: string;
+  dietaryTags: string[];
+  isPermanent: boolean;
+  rating?: number;
+  ratingCount?: number;
+}
 import RatingWidget from "./RatingWidget";
 
 const mealOrder = ["breakfast", "lunch", "dinner", "all-day"] as const;
