@@ -34,7 +34,7 @@ export default function ClubsPage() {
           </div>
           <div>
             <h1 className="text-xl font-bold">Clubs & Orgs</h1>
-            <p className="text-white/80 text-sm">{clubs.length} organizations</p>
+            <p className="text-white/80 text-sm">{clubs.length} registered student orgs</p>
           </div>
         </div>
       </header>
