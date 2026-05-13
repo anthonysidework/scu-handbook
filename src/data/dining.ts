@@ -18,7 +18,7 @@ export const diningHalls: DiningHall[] = [
     id: "marketplace",
     name: "Marketplace",
     type: "weekly",
-    menuUrl: "https://legacy.cafebonappetit.com/weekly-menu/602048",
+    menuUrl: "https://legacy.cafebonappetit.com/weekly-menu/603202",
     description: "Main campus dining hall with rotating weekly menus",
     location: "Center of campus, near Mission Gardens",
     approximateHours: {
